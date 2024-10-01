@@ -1,6 +1,6 @@
 #include <ros/ros.h>
 #include <actionlib/client/simple_action_client.h>
-#include <action_exam/PrimenumberAction.h>  // Include the action definition header
+#include <action_exam/PrimenumberAction.h>
 #include <cstdlib>
 
 // Global variable to track feedback count
@@ -10,7 +10,6 @@ int get_num = 0;
 void doneCb(const actionlib::SimpleClientGoalState& state, const action_exam::PrimenumberResultConstPtr& result)
 {
     ROS_INFO("Finished in state [%s]", state.toString().c_str());
-    ROS_INFO("Prime numbers found:");
     for (size_t i = 0; i < result->sequence.size(); i++) {
         ROS_INFO("%lu: %d", i + 1, result->sequence[i]);
     }
@@ -33,21 +32,19 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "action_exam_client");  // Initialize ROS node
 
-    // Create an Action Client for the Prime Number action
+    // Action Client Declaration (Action Name: ros tutorial action)
     actionlib::SimpleActionClient<action_exam::PrimenumberAction> ac("action_exam_action", true);
 
-    // Wait for the action server to start
     ROS_INFO("Waiting for action server to start.");
-    ac.waitForServer();  // Blocks until the action server has started
+    ac.waitForServer();  //wait for the action server to start, will wait for infinite time
 
     ROS_INFO("Action server started, sending goal.");
 
     // Declare the goal
     action_exam::PrimenumberGoal goal;
 
-    // Set the target based on the input argument (or default to 20 if no argument is provided)
     if (argc != 2)
-        goal.target = 20;  // Default target if no argument is provided
+        goal.target = 20;  // Set Action Goal (Process the Primenumber sequence 20 times)
     else
         goal.target = (int)atoi(argv[1]);  // Use the command-line argument as the target
 
@@ -57,10 +54,10 @@ int main(int argc, char **argv)
     // Set a time limit for the action (30 seconds)
     bool finished_before_timeout = ac.waitForResult(ros::Duration(30.0));
 
-    // Check if the action was completed within the time limit
+    // Process when action results are received within the time limit for achieving the action goal
     if (finished_before_timeout)
     {
-        // Get the result of the action and print the result state
+	// Receive action target status value and display on screen
         actionlib::SimpleClientGoalState state = ac.getState();
         ROS_INFO("Action finished: %s", state.toString().c_str());
     }
